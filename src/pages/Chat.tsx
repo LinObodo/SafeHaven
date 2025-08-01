@@ -83,7 +83,7 @@ const Chat: React.FC = () => {
         <div className="max-w-4xl mx-auto flex items-center space-x-2">
           <AlertTriangle className="h-5 w-5 text-amber-600" />
           <p className="text-sm text-amber-800 dark:text-amber-200">
-            <strong>Safety Reminder:</strong> If you're in immediate danger, call 911. 
+            <strong>Safety Reminder:</strong> If you're in immediate danger, call 199. 
             This chat is confidential, but please use the Quick Exit button if you need to leave quickly.
           </p>
         </div>

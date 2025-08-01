@@ -156,8 +156,8 @@ REMEMBER:
 - Trust your instincts
 - Your safety is the priority
 - You are not alone
-- Call 911 if in immediate danger
-- National Domestic Violence Hotline: 1-800-799-7233
+- Call 199 if in immediate danger
+- National Domestic Violence Hotline: +234 80-6467-9774
     `;
 
     const blob = new Blob([planText], { type: 'text/plain' });

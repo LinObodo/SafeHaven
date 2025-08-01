@@ -91,8 +91,8 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-center space-x-4 text-center">
             <Phone className="h-6 w-6 text-red-600" />
             <p className="text-red-800 dark:text-red-200">
-              <span className="font-semibold">Emergency?</span> Call 911 or the National Domestic Violence Hotline: 
-              <span className="font-mono ml-2 text-lg">1-800-799-7233</span>
+              <span className="font-semibold">Emergency?</span> Call Emergency line or the National Domestic Violence Hotline: 
+              <span className="font-mono ml-2 text-lg">+234 80-6467-9774</span>
             </p>
           </div>
         </div>

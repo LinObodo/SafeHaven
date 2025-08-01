@@ -9,7 +9,7 @@ const Emergency: React.FC = () => {
     {
       id: 'police',
       name: 'Emergency Services',
-      number: '911',
+      number: '199',
       description: 'For immediate life-threatening emergencies',
       icon: Phone,
       color: 'bg-red-600',
@@ -18,7 +18,7 @@ const Emergency: React.FC = () => {
     {
       id: 'hotline',
       name: 'National Domestic Violence Hotline',
-      number: '1-800-799-7233',
+      number: '+234 80-6467-9774',
       description: 'Confidential support and resources',
       icon: Heart,
       color: 'bg-purple-600',
@@ -121,7 +121,7 @@ const Emergency: React.FC = () => {
             <AlertTriangle className="h-8 w-8 text-red-600 flex-shrink-0" />
             <div>
               <p className="text-red-800 dark:text-red-200 font-semibold text-lg">
-                If you are in immediate physical danger, call 911 now.
+                If you are in immediate physical danger, call 199 now.
               </p>
               <p className="text-red-700 dark:text-red-300 text-sm mt-1">
                 Do not hesitate - your life is more important than anything else.

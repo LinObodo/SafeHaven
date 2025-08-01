@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
               <p className="text-red-300 font-semibold mb-2">Emergency Resources</p>
               <p className="text-sm text-red-200">
                 National Domestic Violence Hotline: <br />
-                <span className="font-mono text-lg">1-800-799-7233</span>
+                <span className="font-mono text-lg">+234 80-6467-9774</span>
               </p>
             </div>
           </div>

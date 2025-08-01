@@ -51,7 +51,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (foundTriggers.length > 0) {
         // Emergency response
         if (foundTriggers.includes('help now') || foundTriggers.includes('rescue')) {
-          aiResponse = "I understand you need immediate help. Are you in a safe location right now? If this is a life-threatening emergency, please call 911. I can help you create a safety plan or connect you with local resources. Your safety is my priority.";
+          aiResponse = "I understand you need immediate help. Are you in a safe location right now? If this is a life-threatening emergency, please call 199. I can help you create a safety plan or connect you with local resources. Your safety is my priority.";
         } else if (foundTriggers.includes('plan')) {
           aiResponse = "I can help you create a safety plan. This includes identifying safe places to go, important documents to gather, and trusted people to contact. Would you like to start working on this together?";
         } else if (foundTriggers.includes('ready')) {
