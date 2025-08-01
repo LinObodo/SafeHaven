@@ -60,13 +60,13 @@ const Header: React.FC = () => {
           {/* Right side controls */}
           <div className="flex items-center space-x-4">
             {/* Quick Exit Button */}
-            <button
+            {/* <button
               onClick={handleQuickExit}
               className="hidden sm:flex items-center space-x-1 px-3 py-2 text-sm bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/30 transition-colors"
             >
               <ExternalLink className="h-4 w-4" />
               <span>Quick Exit</span>
-            </button>
+            </button> */}
 
             {/* Accessibility Controls */}
             <div className="relative">
@@ -115,32 +115,23 @@ const Header: React.FC = () => {
             {/* Auth Controls */}
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
-                <span className="hidden sm:inline text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
                   {user?.isAnonymous ? 'Anonymous' : user?.email}
                 </span>
                 <button
                   onClick={logout}
                   className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                  title="Sign out"
                 >
                   <LogOut className="h-5 w-5" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
-                <Link
-                  to="/login"
-                  className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 px-3 py-2 text-sm font-medium transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/register"
-                  className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
-                >
-                  Sign Up
-                </Link>
-              </div>
+              <Link
+                to="/login"
+                className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
+              >
+                Sign In
+              </Link>
             )}
 
             {/* Mobile menu button */}
@@ -178,24 +169,6 @@ const Header: React.FC = () => {
             >
               Quick Exit
             </button>
-            {!isAuthenticated && (
-              <>
-                <Link
-                  to="/login"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 rounded-md"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/register"
-                  className="block px-3 py-2 text-base font-medium bg-primary-600 text-white hover:bg-primary-700 rounded-md"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
           </div>
         </div>
       )}

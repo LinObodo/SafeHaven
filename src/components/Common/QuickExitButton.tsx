@@ -12,7 +12,7 @@ const QuickExitButton: React.FC<QuickExitButtonProps> = ({ className = '' }) => 
   return (
     <button
       onClick={quickExit}
-      className={`fixed top-4 right-4 z-50 flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-700 transition-colors ${className}`}
+      className={`fixed bottom-4 right-4 z-50 flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-700 transition-colors ${className}`}
       title="Quickly exit to a safe site"
     >
       <ExternalLink className="h-4 w-4" />
