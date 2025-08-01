@@ -431,17 +431,17 @@ REMEMBER:
               <button
                 onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                 disabled={currentStep === 0}
-                className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 sm:px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 Previous
               </button>
 
-              <div className="flex space-x-2">
+              <div className="flex space-x-1 sm:space-x-2">
                 {safetySteps.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentStep(index)}
-                    className={`w-3 h-3 rounded-full transition-colors ${index === currentStep
+                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-colors ${index === currentStep
                         ? 'bg-primary-600'
                         : index < currentStep
                           ? 'bg-green-500'
@@ -454,7 +454,7 @@ REMEMBER:
               <button
                 onClick={() => setCurrentStep(Math.min(safetySteps.length - 1, currentStep + 1))}
                 disabled={currentStep === safetySteps.length - 1}
-                className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 sm:px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
               >
                 {currentStep === safetySteps.length - 1 ? 'Complete' : 'Next'}
               </button>

@@ -43,8 +43,7 @@ const About: React.FC = () => {
       
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               About Safe Haven
             </h1>
@@ -52,7 +51,6 @@ const About: React.FC = () => {
               We are dedicated to providing confidential support and resources for survivors of domestic violence, 
               helping them find safety, healing, and hope for the future.
             </p>
-          </div>
         </div>
       </section>
 
@@ -61,15 +59,15 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
                 Our Mission
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-6">
                 Safe Haven exists to empower survivors of domestic violence by providing accessible, 
                 confidential support services and resources. We believe that everyone deserves to live 
                 free from violence and fear.
               </p>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-8">
                 Through our innovative platform, we combine technology with human compassion to create 
                 a safe space where survivors can access help discreetly, plan for their safety, and 
                 connect with the support they need to rebuild their lives.
@@ -88,7 +86,7 @@ const About: React.FC = () => {
               <img
                 src="https://images.pexels.com/photos/5699456/pexels-photo-5699456.jpeg?auto=compress&cs=tinysrgb&w=800"
                 alt="Support and care"
-                className="rounded-lg shadow-lg"
+                className="rounded-lg shadow-lg w-full h-auto"
               />
             </div>
           </div>

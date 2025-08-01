@@ -136,7 +136,7 @@ const Resources: React.FC = () => {
       {/* Search and Filter */}
       <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -212,9 +212,9 @@ const Resources: React.FC = () => {
                 return (
                   <div
                     key={resource.id}
-                    className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow flex flex-col"
                   >
-                    <div className="p-6">
+                    <div className="p-4 sm:p-6 flex-1 flex flex-col">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center space-x-2">
                           <div className="p-2 bg-primary-100 dark:bg-primary-900/20 rounded-lg">
@@ -243,7 +243,7 @@ const Resources: React.FC = () => {
                         {resource.description}
                       </p>
                       
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-2 mb-4 flex-1">
                         {resource.tags.map((tag, index) => (
                           <span
                             key={index}
@@ -254,7 +254,7 @@ const Resources: React.FC = () => {
                         ))}
                       </div>
                       
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mt-auto">
                         <button className="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center space-x-1">
                           <span>Read more</span>
                           <ExternalLink className="h-3 w-3" />
@@ -263,7 +263,7 @@ const Resources: React.FC = () => {
                         {resource.downloadable && (
                           <button
                             onClick={() => handleDownload(resource)}
-                            className="bg-primary-600 text-white px-3 py-1 rounded text-sm hover:bg-primary-700 transition-colors"
+                            className="bg-primary-600 text-white px-3 py-2 rounded text-sm hover:bg-primary-700 transition-colors w-full sm:w-auto"
                           >
                             Download
                           </button>

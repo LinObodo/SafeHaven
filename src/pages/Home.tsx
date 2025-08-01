@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Heart, Users, Phone, MessageCircle, FileText, ArrowRight } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
 import QuickExitButton from '../components/Common/QuickExitButton';
 
 const Home: React.FC = () => {
+  const { isAuthenticated } = useAuthStore();
+
   const features = [
     {
       icon: MessageCircle,
@@ -68,11 +71,11 @@ const Home: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                to="/chat"
+                to={isAuthenticated ? "/chat" : "/register"}
                 className="bg-primary-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-colors flex items-center justify-center space-x-2"
               >
                 <MessageCircle className="h-5 w-5" />
-                <span>Talk to SafeSpeak</span>
+                <span>{isAuthenticated ? 'Talk to SafeSpeak' : 'Get Started'}</span>
               </Link>
               <Link
                 to="/help"
@@ -214,10 +217,10 @@ const Home: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/chat"
+              to={isAuthenticated ? "/chat" : "/register"}
               className="bg-white text-primary-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors"
             >
-              Start Chat with SafeSpeak
+              {isAuthenticated ? 'Start Chat with SafeSpeak' : 'Create Account'}
             </Link>
             <Link
               to="/resources"

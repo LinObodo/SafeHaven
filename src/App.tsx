@@ -10,6 +10,7 @@ import Resources from './pages/Resources';
 import Emergency from './pages/Emergency';
 import Help from './pages/Help';
 import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
 
 function App() {
   const { darkMode, fontSize } = useAuthStore();
@@ -47,7 +48,7 @@ function App() {
             <Route path="/emergency" element={<Emergency />} />
             <Route path="/help" element={<Help />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </main>
         <Footer />

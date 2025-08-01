@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Send, Bot, User, Shield, AlertTriangle } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
 import { useAuthStore } from '../store/authStore';
@@ -9,7 +10,12 @@ const Chat: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages, isTyping, processMessage, clearChat } = useChatStore();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

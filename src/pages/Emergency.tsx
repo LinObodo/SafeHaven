@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Phone, MessageCircle, MapPin, Clock, AlertTriangle, Shield, Heart } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
 import QuickExitButton from '../components/Common/QuickExitButton';
 
 const Emergency: React.FC = () => {
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
+  const { isAuthenticated } = useAuthStore();
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
   const emergencyContacts = [
     {
