@@ -16,10 +16,9 @@ const Register: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { signUp, loading } = useAuthStore();
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -67,29 +66,15 @@ const Register: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
     setErrors({});
 
-    try {
-      // Simulate registration
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock user data
-      const user = {
-        id: 'user-' + Date.now(),
-        email: formData.email,
-        role: 'victim' as const,
-        isAnonymous: false,
-        createdAt: new Date(),
-        lastLogin: new Date(),
-      };
-      
-      login(user);
+    const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+    const result = await signUp(formData.email, formData.password, fullName);
+    
+    if (result.error) {
+      setErrors({ general: result.error });
+    } else {
       navigate('/');
-    } catch (err) {
-      setErrors({ general: 'Registration failed. Please try again.' });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -322,17 +307,17 @@ const Register: React.FC = () => {
             <div>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={loading}
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  {isLoading ? (
+                  {loading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   ) : (
                     <UserPlus className="h-5 w-5 text-primary-500 group-hover:text-primary-400" />
                   )}
                 </span>
-                {isLoading ? 'Creating Account...' : 'Create Account'}
+                {loading ? 'Creating Account...' : 'Create Account'}
               </button>
             </div>
           </form>

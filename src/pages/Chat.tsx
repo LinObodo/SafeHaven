@@ -9,7 +9,7 @@ import LoadingSpinner from '../components/Common/LoadingSpinner';
 const Chat: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isTyping, processMessage, clearChat } = useChatStore();
+  const { messages, isTyping, processMessage, clearChat, loadChatHistory, createNewSession, loading } = useChatStore();
   const { user, isAuthenticated } = useAuthStore();
 
   // Redirect to login if not authenticated
@@ -18,7 +18,7 @@ const Chat: React.FC = () => {
   }
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
   };
 
   useEffect(() => {
@@ -26,17 +26,27 @@ const Chat: React.FC = () => {
   }, [messages, isTyping]);
 
   useEffect(() => {
-    // Add welcome message if no messages exist
-    if (messages.length === 0) {
-      const welcomeMessage = {
-        id: 'welcome',
-        message: "Hello, I'm SafeSpeak, your confidential support assistant. I'm here to listen and help you explore your options in a safe, judgment-free space. Are you in a safe place to talk right now?",
-        isUser: false,
-        timestamp: new Date(),
-      };
-      useChatStore.getState().addMessage(welcomeMessage);
+    // Load chat history when component mounts
+    const initializeChat = async () => {
+      await loadChatHistory();
+      
+      // Add welcome message if no messages exist
+      const currentMessages = useChatStore.getState().messages;
+      if (currentMessages.length === 0) {
+        const welcomeMessage = {
+          id: 'welcome',
+          message: "Hello, I'm SafeSpeak, your confidential support assistant. I'm here to listen and help you explore your options in a safe, judgment-free space. Are you in a safe place to talk right now?",
+          isUser: false,
+          timestamp: new Date(),
+        };
+        useChatStore.getState().addMessage(welcomeMessage);
+      }
+    };
+
+    if (isAuthenticated) {
+      initializeChat();
     }
-  }, [messages.length]);
+  }, [isAuthenticated, loadChatHistory]);
 
   const handleSendMessage = () => {
     if (inputMessage.trim()) {
@@ -52,6 +62,19 @@ const Chat: React.FC = () => {
     }
   };
 
+  const handleClearChat = async () => {
+    await clearChat();
+    await createNewSession();
+    
+    // Add welcome message for new session
+    const welcomeMessage = {
+      id: 'welcome-new',
+      message: "Hello, I'm SafeSpeak, your confidential support assistant. I'm here to listen and help you explore your options in a safe, judgment-free space. Are you in a safe place to talk right now?",
+      isUser: false,
+      timestamp: new Date(),
+    };
+    useChatStore.getState().addMessage(welcomeMessage);
+  };
   const quickResponses = [
     "I need help with safety planning",
     "I'm not sure if what I'm experiencing is abuse",
@@ -61,6 +84,16 @@ const Chat: React.FC = () => {
     "I need financial assistance"
   ];
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading your chat...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       <QuickExitButton />
@@ -205,7 +238,7 @@ const Chat: React.FC = () => {
               This conversation is confidential and not stored permanently.
             </p>
             <button
-              onClick={clearChat}
+              onClick={handleClearChat}
               className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
             >
               Clear Chat

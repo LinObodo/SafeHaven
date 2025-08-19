@@ -11,9 +11,15 @@ import Emergency from './pages/Emergency';
 import Help from './pages/Help';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
+import LoadingSpinner from './components/Common/LoadingSpinner';
 
 function App() {
-  const { darkMode, fontSize } = useAuthStore();
+  const { darkMode, fontSize, initialize, loading } = useAuthStore();
+
+  useEffect(() => {
+    // Initialize authentication
+    initialize();
+  }, [initialize]);
 
   useEffect(() => {
     // Apply dark mode
@@ -35,6 +41,16 @@ function App() {
       .concat(` ${fontSizeClasses[fontSize]}`);
   }, [darkMode, fontSize]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading Safe Haven...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <Router>
       <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">

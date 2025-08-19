@@ -9,50 +9,32 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { signIn, signInAnonymously, loading } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
 
-    try {
-      // Simulate authentication
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock user data
-      const user = {
-        id: 'user-' + Date.now(),
-        email,
-        role: 'victim' as const,
-        isAnonymous: false,
-        createdAt: new Date(),
-        lastLogin: new Date(),
-      };
-      
-      login(user);
+    const result = await signIn(email, password);
+    
+    if (result.error) {
+      setError(result.error);
+    } else {
       navigate('/');
-    } catch (err) {
-      setError('Invalid email or password');
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleAnonymousAccess = () => {
-    const anonymousUser = {
-      id: 'anonymous-' + Date.now(),
-      role: 'victim' as const,
-      isAnonymous: true,
-      createdAt: new Date(),
-      lastLogin: new Date(),
-    };
+  const handleAnonymousAccess = async () => {
+    setError('');
+    const result = await signInAnonymously();
     
-    login(anonymousUser);
-    navigate('/');
+    if (result.error) {
+      setError(result.error);
+    } else {
+      navigate('/');
+    }
   };
 
   return (
@@ -157,17 +139,17 @@ const Login: React.FC = () => {
             <div>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={loading}
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  {isLoading ? (
+                  {loading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   ) : (
                     <LogIn className="h-5 w-5 text-primary-500 group-hover:text-primary-400" />
                   )}
                 </span>
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {loading ? 'Signing in...' : 'Sign In'}
               </button>
             </div>
           </form>
@@ -185,10 +167,11 @@ const Login: React.FC = () => {
             <div className="mt-6">
               <button
                 onClick={handleAnonymousAccess}
+                disabled={loading}
                 className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
               >
                 <UserX className="h-5 w-5 mr-2" />
-                Continue Anonymously
+                {loading ? 'Creating anonymous session...' : 'Continue Anonymously'}
               </button>
             </div>
           </div>
