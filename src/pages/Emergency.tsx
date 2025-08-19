@@ -32,15 +32,15 @@ const Emergency: React.FC = () => {
       color: 'bg-purple-600',
       available: '24/7'
     },
-    {
-      id: 'crisis',
-      name: 'Crisis Text Line',
-      number: 'Text HOME to 741741',
-      description: 'Free, confidential crisis support via text',
-      icon: MessageCircle,
-      color: 'bg-blue-600',
-      available: '24/7'
-    },
+    // {
+    //   id: 'crisis',
+    //   name: 'Crisis Text Line',
+    //   number: 'Text HOME to 741741',
+    //   description: 'Free, confidential crisis support via text',
+    //   icon: MessageCircle,
+    //   color: 'bg-blue-600',
+    //   available: '24/7'
+    // },
     {
       id: 'shelter',
       name: 'Safe Haven Support',

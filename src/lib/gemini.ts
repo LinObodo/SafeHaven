@@ -53,11 +53,14 @@ export class GeminiService {
 
       // Create chat session with history
       const chat = this.model.startChat({
-        history: chatHistory.map(msg => ({
-          role: msg.role,
-          parts: [{ text: msg.parts }]
-        }))
-      });
+  history: chatHistory
+    .filter(msg => msg.role === 'user') // only keep user messages
+    .map(msg => ({
+      role: msg.role,
+      parts: [{ text: msg.parts }]
+    }))
+});
+
 
       // Add context about trigger words if found
       let contextualMessage = userMessage;

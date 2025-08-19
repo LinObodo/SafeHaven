@@ -17,19 +17,20 @@ const Chat: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-  };
-
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping]);
+  const timeout = setTimeout(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, 50);
+
+  return () => clearTimeout(timeout);
+}, [messages, isTyping]);
+
 
   useEffect(() => {
     // Load chat history when component mounts
     const initializeChat = async () => {
       await loadChatHistory();
-      
+
       // Add welcome message if no messages exist
       const currentMessages = useChatStore.getState().messages;
       if (currentMessages.length === 0) {
@@ -65,7 +66,7 @@ const Chat: React.FC = () => {
   const handleClearChat = async () => {
     await clearChat();
     await createNewSession();
-    
+
     // Add welcome message for new session
     const welcomeMessage = {
       id: 'welcome-new',
@@ -97,7 +98,7 @@ const Chat: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       <QuickExitButton />
-      
+
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -122,7 +123,7 @@ const Chat: React.FC = () => {
         <div className="max-w-4xl mx-auto flex items-center space-x-2">
           <AlertTriangle className="h-5 w-5 text-amber-600" />
           <p className="text-sm text-amber-800 dark:text-amber-200">
-            <strong>Safety Reminder:</strong> If you're in immediate danger, call 199. 
+            <strong>Safety Reminder:</strong> If you're in immediate danger, call 199.
             This chat is confidential, but please use the Quick Exit button if you need to leave quickly.
           </p>
         </div>
@@ -137,22 +138,20 @@ const Chat: React.FC = () => {
               className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`flex max-w-xs lg:max-w-md xl:max-w-lg ${message.isUser ? 'flex-row-reverse' : 'flex-row'} items-start space-x-3`}>
-                <div className={`flex-shrink-0 p-2 rounded-full ${
-                  message.isUser 
-                    ? 'bg-primary-100 dark:bg-primary-900/20' 
+                <div className={`flex-shrink-0 p-2 rounded-full ${message.isUser
+                    ? 'bg-primary-100 dark:bg-primary-900/20'
                     : 'bg-gray-100 dark:bg-gray-700'
-                }`}>
+                  }`}>
                   {message.isUser ? (
                     <User className="h-4 w-4 text-primary-600" />
                   ) : (
                     <Bot className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                   )}
                 </div>
-                <div className={`px-4 py-3 rounded-lg ${
-                  message.isUser
+                <div className={`px-4 py-3 rounded-lg ${message.isUser
                     ? 'bg-primary-600 text-white'
                     : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'
-                }`}>
+                  }`}>
                   <p className="text-sm leading-relaxed">{message.message}</p>
                   {message.isEmergency && (
                     <div className="mt-2 flex items-center space-x-1">
@@ -167,7 +166,7 @@ const Chat: React.FC = () => {
               </div>
             </div>
           ))}
-          
+
           {isTyping && (
             <div className="flex justify-start">
               <div className="flex items-start space-x-3">
@@ -183,7 +182,7 @@ const Chat: React.FC = () => {
               </div>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
       </div>
@@ -232,7 +231,7 @@ const Chat: React.FC = () => {
               <span>Send</span>
             </button>
           </div>
-          
+
           <div className="flex justify-between items-center mt-2">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               This conversation is confidential and not stored permanently.
