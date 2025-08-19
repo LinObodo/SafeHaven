@@ -22,7 +22,8 @@ const Login: React.FC = () => {
     if (result.error) {
       setError(result.error);
     } else {
-      navigate('/');
+      // Navigate to home page after successful login
+      navigate('/', { replace: true });
     }
   };
 
@@ -33,7 +34,8 @@ const Login: React.FC = () => {
     if (result.error) {
       setError(result.error);
     } else {
-      navigate('/');
+      // Navigate to home page after successful anonymous login
+      navigate('/', { replace: true });
     }
   };
 

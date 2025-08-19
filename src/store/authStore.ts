@@ -177,6 +177,8 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         await supabase.auth.signOut();
         set({ user: null, authUser: null, isAuthenticated: false });
+        // Navigate to login page after logout
+        window.location.href = '/login';
       },
 
       initialize: async () => {

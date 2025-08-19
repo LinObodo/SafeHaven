@@ -74,7 +74,8 @@ const Register: React.FC = () => {
     if (result.error) {
       setErrors({ general: result.error });
     } else {
-      navigate('/');
+      // Navigate to login page after successful registration
+      navigate('/login');
     }
   };
 
