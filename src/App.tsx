@@ -57,7 +57,8 @@ function App() {
         <Header />
         <main>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home />} /> 
+            <Route path="/home" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/resources" element={<Resources />} />
