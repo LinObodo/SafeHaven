@@ -22,7 +22,8 @@ const Login: React.FC = () => {
     if (result.error) {
       setError(result.error);
     } else {
-      navigate('/home', { replace: true });
+      // Navigate to home page after successful login
+      navigate('/', { replace: true });
     }
   };
 
