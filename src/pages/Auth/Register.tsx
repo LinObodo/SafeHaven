@@ -17,8 +17,9 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [verificationSent, setVerificationSent] = useState(false);
   const navigate = useNavigate();
-  const { signUp, loading } = useAuthStore();
+  const { signUp, resendVerification, loading } = useAuthStore();
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -73,9 +74,21 @@ const Register: React.FC = () => {
     
     if (result.error) {
       setErrors({ general: result.error });
+    } else if (result.needsVerification) {
+      // Email confirmation is required - prompt the user to verify.
+      setVerificationSent(true);
     } else {
-      // Navigate to login page after successful registration
-      navigate('/login');
+      // Session established immediately (confirmation disabled) - go home.
+      navigate('/', { replace: true });
+    }
+  };
+
+  const handleResendVerification = async () => {
+    const result = await resendVerification(formData.email);
+    if (result.error) {
+      setErrors({ general: result.error });
+    } else {
+      setErrors({});
     }
   };
 
@@ -106,6 +119,42 @@ const Register: React.FC = () => {
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sm:p-8">
+          {verificationSent ? (
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-full">
+                  <Check className="h-8 w-8 text-green-600" />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Verify your email
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                We've sent a verification link to{' '}
+                <span className="font-medium text-gray-900 dark:text-white">{formData.email}</span>.
+                Please check your inbox and confirm your email before signing in.
+              </p>
+              {errors.general && (
+                <p className="text-sm text-red-600 dark:text-red-400">{errors.general}</p>
+              )}
+              <div className="flex flex-col gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={loading}
+                  className="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
+                >
+                  Resend verification email
+                </button>
+                <Link
+                  to="/login"
+                  className="w-full py-2 px-4 rounded-md text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors"
+                >
+                  Go to Sign In
+                </Link>
+              </div>
+            </div>
+          ) : (
           <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
             {errors.general && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
@@ -322,15 +371,18 @@ const Register: React.FC = () => {
               </button>
             </div>
           </form>
+          )}
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Already have an account?{' '}
-              <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
-                Sign in here
-              </Link>
-            </p>
-          </div>
+          {!verificationSent && (
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Already have an account?{' '}
+                <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
+                  Sign in here
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
