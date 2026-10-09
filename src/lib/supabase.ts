@@ -135,6 +135,38 @@ export interface Database {
           updated_at?: string;
         };
       };
+      emergency_contacts: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          phone: string;
+          relationship: string;
+          is_trusted: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          phone: string;
+          relationship?: string;
+          is_trusted?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          phone?: string;
+          relationship?: string;
+          is_trusted?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
   };
 }
