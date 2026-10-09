@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA fallback: serve index.html for all client-side routes so that direct
+# navigation and page refresh on React Router paths (/help, /emergency,
+# /chat, /cases, etc.) do not return a Netlify 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

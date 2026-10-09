@@ -154,26 +154,30 @@ export const useAuthStore = create<AuthState>()(
             return { error: error.message };
           }
 
-          if (data.user) {
+          // The user may arrive via data.user or via the created session.
+          const authUser = data.user ?? data.session?.user ?? null;
+
+          if (authUser) {
             const user: User = {
-              id: data.user.id,
+              id: authUser.id,
+              email: authUser.email || undefined,
               role: 'victim',
-              isAnonymous: true,
-              createdAt: new Date(data.user.created_at),
+              isAnonymous: authUser.is_anonymous ?? true,
+              createdAt: new Date(authUser.created_at),
               lastLogin: new Date()
             };
 
-            set({ 
-              user, 
-              authUser: data.user, 
-              isAuthenticated: true, 
-              loading: false 
+            set({
+              user,
+              authUser,
+              isAuthenticated: true,
+              loading: false
             });
-          } else {
-            set({ loading: false });
+            return {};
           }
 
-          return {};
+          set({ loading: false });
+          return { error: 'Could not start an anonymous session. Please try again.' };
         } catch (error) {
           set({ loading: false });
           return { error: 'An unexpected error occurred' };
@@ -254,7 +258,10 @@ export const useAuthStore = create<AuthState>()(
           const { data: { session } } = await supabase.auth.getSession();
           
           if (session?.user) {
-            // Fetch user profile
+            // Supabase is the source of truth for anonymous status.
+            const isAnonymous = session.user.is_anonymous ?? false;
+
+            // Fetch user profile (may not exist yet / be irrelevant for anon users).
             const { data: profile } = await supabase
               .from('user_profiles')
               .select('*')
@@ -263,9 +270,9 @@ export const useAuthStore = create<AuthState>()(
 
             const user: User = {
               id: session.user.id,
-              email: session.user.email || '',
+              email: session.user.email || undefined,
               role: profile?.role || 'victim',
-              isAnonymous: profile?.is_anonymous || false,
+              isAnonymous,
               createdAt: new Date(profile?.created_at || session.user.created_at),
               lastLogin: new Date()
             };
