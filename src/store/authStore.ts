@@ -22,6 +22,10 @@ interface AuthState {
   setDarkMode: (enabled: boolean) => void;
   setFontSize: (size: 'small' | 'medium' | 'large') => void;
   quickExit: () => void;
+  quickExitAndDeletePlan: () => Promise<void>;
+  quickExitConfirmOpen: boolean;
+  openQuickExitConfirm: () => void;
+  closeQuickExitConfirm: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -289,6 +293,25 @@ export const useAuthStore = create<AuthState>()(
         sessionStorage.clear();
         window.location.replace('https://www.google.com');
       },
+      quickExitAndDeletePlan: async () => {
+        // Permanently delete the user's saved safety plan BEFORE clearing
+        // local state and redirecting. Best-effort: a failed delete must not
+        // trap the user — we still clear local data and exit.
+        const { user } = get();
+        if (user) {
+          try {
+            await supabase.from('safety_plans').delete().eq('user_id', user.id);
+          } catch (error) {
+            console.error('Error deleting safety plan during quick exit:', error);
+          }
+        }
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('https://www.google.com');
+      },
+      quickExitConfirmOpen: false,
+      openQuickExitConfirm: () => set({ quickExitConfirmOpen: true }),
+      closeQuickExitConfirm: () => set({ quickExitConfirmOpen: false }),
     }),
     {
       name: 'safe-haven-auth',

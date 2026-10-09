@@ -7,7 +7,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAccessibility, setShowAccessibility] = useState(false);
   const location = useLocation();
-  const { user, isAuthenticated, darkMode, fontSize, setDarkMode, setFontSize, logout, quickExit } = useAuthStore();
+  const { user, isAuthenticated, darkMode, fontSize, setDarkMode, setFontSize, logout, openQuickExitConfirm } = useAuthStore();
 
   const navigation = [
     { name: 'Home', href: '/', public: true },
@@ -23,7 +23,8 @@ const Header: React.FC = () => {
   );
 
   const handleQuickExit = () => {
-    quickExit();
+    setIsMenuOpen(false);
+    openQuickExitConfirm();
   };
 
   return (
