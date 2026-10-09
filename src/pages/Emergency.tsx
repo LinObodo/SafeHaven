@@ -1,12 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Phone, MessageCircle, MapPin, Clock, AlertTriangle, Shield, Heart } from 'lucide-react';
+import { Phone, MessageCircle, MapPin, Clock, AlertTriangle, Shield, Heart, UserPlus, Trash2, Users } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { useEmergencyContactsStore } from '../store/emergencyContactsStore';
 import QuickExitButton from '../components/Common/QuickExitButton';
 
 const Emergency: React.FC = () => {
-  const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const { isAuthenticated } = useAuthStore();
+  const { contacts, loading: contactsLoading, saving, error, loadContacts, addContact, deleteContact } =
+    useEmergencyContactsStore();
+  const [newContact, setNewContact] = useState({ name: '', phone: '', relationship: '' });
+  const [formError, setFormError] = useState('');
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadContacts();
+    }
+  }, [isAuthenticated, loadContacts]);
+
+  const handleAddContact = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+    const result = await addContact(newContact);
+    if (result.error) {
+      setFormError(result.error);
+    } else {
+      setNewContact({ name: '', phone: '', relationship: '' });
+    }
+  };
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
@@ -186,6 +207,127 @@ const Emergency: React.FC = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* My Trusted Contacts */}
+      <section className="py-12 bg-white dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <Users className="h-10 w-10 text-primary-600 mx-auto mb-3" />
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              My Trusted Contacts
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Save people you trust so you can reach them with one tap in an emergency.
+            </p>
+          </div>
+
+          {error && (
+            <div className="max-w-2xl mx-auto mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3">
+              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            </div>
+          )}
+
+          {/* Saved contacts */}
+          <div className="max-w-3xl mx-auto">
+            {contactsLoading ? (
+              <p className="text-center text-gray-500 dark:text-gray-400">Loading your contacts...</p>
+            ) : contacts.length === 0 ? (
+              <p className="text-center text-gray-500 dark:text-gray-400 mb-8">
+                You haven't added any trusted contacts yet. Add one below.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+                {contacts.map((contact) => (
+                  <div
+                    key={contact.id}
+                    className="bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4 flex items-start justify-between"
+                  >
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                        {contact.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
+                        {contact.phone}
+                      </p>
+                      {contact.relationship && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          {contact.relationship}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2 flex-shrink-0 ml-3">
+                      <button
+                        onClick={() => handleCall(contact.phone)}
+                        className="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors flex items-center space-x-1"
+                        title={`Call ${contact.name}`}
+                      >
+                        <Phone className="h-4 w-4" />
+                        <span>Call</span>
+                      </button>
+                      <button
+                        onClick={() => deleteContact(contact.id)}
+                        className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        title={`Delete ${contact.name}`}
+                        aria-label={`Delete ${contact.name}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add contact form */}
+            <form
+              onSubmit={handleAddContact}
+              className="bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-6"
+            >
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
+                <UserPlus className="h-5 w-5 text-primary-600" />
+                <span>Add a trusted contact</span>
+              </h3>
+
+              {formError && (
+                <p className="text-sm text-red-600 dark:text-red-400 mb-3">{formError}</p>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={newContact.name}
+                  onChange={(e) => setNewContact((prev) => ({ ...prev, name: e.target.value }))}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                />
+                <input
+                  type="tel"
+                  placeholder="Phone number"
+                  value={newContact.phone}
+                  onChange={(e) => setNewContact((prev) => ({ ...prev, phone: e.target.value }))}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                />
+                <input
+                  type="text"
+                  placeholder="Relationship (optional)"
+                  value={newContact.relationship}
+                  onChange={(e) => setNewContact((prev) => ({ ...prev, relationship: e.target.value }))}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={saving}
+                className="mt-4 bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                <UserPlus className="h-4 w-4" />
+                <span>{saving ? 'Saving...' : 'Add Contact'}</span>
+              </button>
+            </form>
           </div>
         </div>
       </section>
