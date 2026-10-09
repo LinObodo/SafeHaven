@@ -11,9 +11,12 @@ interface AuthState {
   darkMode: boolean;
   fontSize: 'small' | 'medium' | 'large';
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error?: string }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error?: string; needsVerification?: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signInAnonymously: () => Promise<{ error?: string }>;
+  resetPassword: (email: string) => Promise<{ error?: string }>;
+  updatePassword: (newPassword: string) => Promise<{ error?: string }>;
+  resendVerification: (email: string) => Promise<{ error?: string }>;
   logout: () => void;
   initialize: () => Promise<void>;
   setDarkMode: (enabled: boolean) => void;
@@ -50,7 +53,14 @@ export const useAuthStore = create<AuthState>()(
             return { error: error.message };
           }
 
-          if (data.user) {
+          // When email confirmation is enabled, Supabase returns a user but
+          // no active session. Do NOT mark the user as authenticated.
+          if (data.user && !data.session) {
+            set({ loading: false });
+            return { needsVerification: true };
+          }
+
+          if (data.user && data.session) {
             // Fetch user profile
             const { data: profile } = await supabase
               .from('user_profiles')
@@ -73,6 +83,8 @@ export const useAuthStore = create<AuthState>()(
               isAuthenticated: true, 
               loading: false 
             });
+          } else {
+            set({ loading: false });
           }
 
           return {};
@@ -130,20 +142,8 @@ export const useAuthStore = create<AuthState>()(
       signInAnonymously: async () => {
         set({ loading: true });
         try {
-          // Create anonymous user with a temporary email
-          const anonymousEmail = `anonymous_${Date.now()}@safehaven.temp`;
-          const anonymousPassword = `temp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-
-          const { data, error } = await supabase.auth.signUp({
-            email: anonymousEmail,
-            password: anonymousPassword,
-            options: {
-              data: {
-                full_name: 'Anonymous User',
-                is_anonymous: true
-              }
-            }
-          });
+          // Use Supabase native anonymous auth (reliable, no fake credentials)
+          const { data, error } = await supabase.auth.signInAnonymously();
 
           if (error) {
             set({ loading: false });
@@ -165,6 +165,8 @@ export const useAuthStore = create<AuthState>()(
               isAuthenticated: true, 
               loading: false 
             });
+          } else {
+            set({ loading: false });
           }
 
           return {};
@@ -174,8 +176,69 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      resetPassword: async (email: string) => {
+        try {
+          const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/reset-password`
+          });
+
+          if (error) {
+            return { error: error.message };
+          }
+
+          return {};
+        } catch (error) {
+          console.error('Error requesting password reset:', error);
+          return { error: 'An unexpected error occurred' };
+        }
+      },
+
+      updatePassword: async (newPassword: string) => {
+        set({ loading: true });
+        try {
+          const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+          if (error) {
+            set({ loading: false });
+            return { error: error.message };
+          }
+
+          set({ loading: false });
+          return {};
+        } catch (error) {
+          console.error('Error updating password:', error);
+          set({ loading: false });
+          return { error: 'An unexpected error occurred' };
+        }
+      },
+
+      resendVerification: async (email: string) => {
+        try {
+          const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email,
+            options: {
+              emailRedirectTo: `${window.location.origin}/login`
+            }
+          });
+
+          if (error) {
+            return { error: error.message };
+          }
+
+          return {};
+        } catch (error) {
+          console.error('Error resending verification email:', error);
+          return { error: 'An unexpected error occurred' };
+        }
+      },
+
       logout: async () => {
-        await supabase.auth.signOut();
+        try {
+          await supabase.auth.signOut();
+        } catch (error) {
+          console.error('Error during sign out:', error);
+        }
         set({ user: null, authUser: null, isAuthenticated: false });
         // Navigate to login page after logout
         window.location.href = '/login';
@@ -237,10 +300,37 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-// Listen for auth changes
+// Listen for auth changes to keep the store in sync with the Supabase session.
+// This handles session persistence across refreshes and token refreshes
+// without re-running a full initialize() on every event.
 supabase.auth.onAuthStateChange((event, session) => {
-  const { initialize } = useAuthStore.getState();
-  if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-    initialize();
+  if (event === 'SIGNED_OUT') {
+    useAuthStore.setState({
+      user: null,
+      authUser: null,
+      isAuthenticated: false,
+      loading: false
+    });
+    return;
+  }
+
+  if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
+    const authUser = session.user;
+    const isAnonymous = authUser.is_anonymous ?? false;
+
+    useAuthStore.setState((state) => ({
+      authUser,
+      isAuthenticated: true,
+      loading: false,
+      // Preserve an already-hydrated profile; otherwise derive a baseline user
+      user: state.user ?? {
+        id: authUser.id,
+        email: authUser.email || undefined,
+        role: 'victim',
+        isAnonymous,
+        createdAt: new Date(authUser.created_at),
+        lastLogin: new Date()
+      }
+    }));
   }
 });
