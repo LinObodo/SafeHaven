@@ -16,6 +16,7 @@ const Header: React.FC = () => {
     { name: 'Resources', href: '/resources', public: true },
     { name: 'SafeSpeak', href: '/chat', public: false },
     { name: 'Emergency', href: '/emergency', public: false },
+    { name: 'Cases', href: '/cases', public: false },
   ];
 
   const filteredNavigation = navigation.filter(item => 

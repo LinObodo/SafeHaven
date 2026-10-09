@@ -49,12 +49,13 @@ export interface ChatMessage {
   isEmergency?: boolean;
 }
 
+export type NGOCaseStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
+
 export interface NGOCase {
   id: string;
-  victimId: string;
+  survivorId: string;
   assignedNGO: string;
-  status: 'active' | 'closed' | 'referred';
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  status: NGOCaseStatus;
   notes: string;
   createdAt: Date;
   updatedAt: Date;

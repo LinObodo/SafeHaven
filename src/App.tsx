@@ -9,6 +9,7 @@ import Chat from './pages/Chat';
 import Resources from './pages/Resources';
 import Emergency from './pages/Emergency';
 import Help from './pages/Help';
+import Cases from './pages/Cases';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import ResetPassword from './pages/Auth/ResetPassword';
@@ -65,6 +66,7 @@ function App() {
             <Route path="/resources" element={<Resources />} />
             <Route path="/emergency" element={<Emergency />} />
             <Route path="/help" element={<Help />} />
+            <Route path="/cases" element={<Cases />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/reset-password" element={<ResetPassword />} />
