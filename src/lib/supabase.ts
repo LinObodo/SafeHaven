@@ -167,6 +167,35 @@ export interface Database {
           updated_at?: string;
         };
       };
+      ngo_cases: {
+        Row: {
+          id: string;
+          survivor_id: string;
+          assigned_ngo: string;
+          status: 'open' | 'in_progress' | 'resolved' | 'closed';
+          notes: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          survivor_id: string;
+          assigned_ngo: string;
+          status?: 'open' | 'in_progress' | 'resolved' | 'closed';
+          notes?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          survivor_id?: string;
+          assigned_ngo?: string;
+          status?: 'open' | 'in_progress' | 'resolved' | 'closed';
+          notes?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
   };
 }
