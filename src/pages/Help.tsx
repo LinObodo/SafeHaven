@@ -15,7 +15,7 @@ type SafetyPlan = {
 };
 
 const Help: React.FC = () => {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, loading: authLoading } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [safetyPlan, setSafetyPlan] = useState<SafetyPlan>({
     emergencyContacts: [{ name: '', phone: '', relationship: '' }],
@@ -35,6 +35,12 @@ const Help: React.FC = () => {
   // Load the user's saved plan (if any) on mount
   useEffect(() => {
     const loadPlan = async () => {
+      // Wait for auth bootstrap to finish before deciding there is no user.
+      // Prevents a race where the effect runs before the session is restored.
+      if (authLoading) {
+        return;
+      }
+
       if (!isAuthenticated || !user) {
         setPlanLoading(false);
         return;
@@ -72,7 +78,7 @@ const Help: React.FC = () => {
     };
 
     loadPlan();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, authLoading]);
 
   const savePlan = async () => {
     if (!user) {
@@ -82,18 +88,25 @@ const Help: React.FC = () => {
 
     setPlanSaving(true);
     setPlanStatus(null);
+
+    // Strip empty wizard placeholders so blank entries are not persisted.
+    const cleanedStrings = (items: string[]) => items.map((i) => i.trim()).filter(Boolean);
+    const cleanedContacts = safetyPlan.emergencyContacts.filter(
+      (c) => c.name.trim() || c.phone.trim() || c.relationship.trim()
+    );
+
     try {
       const { error } = await supabase
         .from('safety_plans')
         .upsert(
           {
             user_id: user.id,
-            emergency_contacts: safetyPlan.emergencyContacts,
-            safe_locations: safetyPlan.safeLocations,
+            emergency_contacts: cleanedContacts,
+            safe_locations: cleanedStrings(safetyPlan.safeLocations),
             important_documents: safetyPlan.importantDocuments,
-            escape_routes: safetyPlan.escapeRoutes,
-            warning_signals: safetyPlan.warningSignals,
-            personal_items: safetyPlan.personalItems,
+            escape_routes: cleanedStrings(safetyPlan.escapeRoutes),
+            warning_signals: cleanedStrings(safetyPlan.warningSignals),
+            personal_items: cleanedStrings(safetyPlan.personalItems),
           },
           { onConflict: 'user_id' }
         );
