@@ -10,12 +10,14 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const navigate = useNavigate();
-  const { signIn, signInAnonymously, loading } = useAuthStore();
+  const { signIn, signInAnonymously, resetPassword, loading } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setInfo('');
 
     const result = await signIn(email, password);
     
@@ -24,6 +26,24 @@ const Login: React.FC = () => {
     } else {
       // Navigate to home page after successful login
       navigate('/', { replace: true });
+    }
+  };
+
+  const handleResetPassword = async () => {
+    setError('');
+    setInfo('');
+
+    if (!email.trim()) {
+      setError('Please enter your email address first, then select "Forgot your password?".');
+      return;
+    }
+
+    const result = await resetPassword(email);
+
+    if (result.error) {
+      setError(result.error);
+    } else {
+      setInfo('If an account exists for that email, a password reset link has been sent. Please check your inbox.');
     }
   };
 
@@ -66,6 +86,12 @@ const Login: React.FC = () => {
                   <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
                   <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                 </div>
+              </div>
+            )}
+
+            {info && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4">
+                <p className="text-sm text-green-700 dark:text-green-300">{info}</p>
               </div>
             )}
 
@@ -132,9 +158,14 @@ const Login: React.FC = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
+                <button
+                  type="button"
+                  onClick={handleResetPassword}
+                  disabled={loading}
+                  className="font-medium text-primary-600 hover:text-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   Forgot your password?
-                </a>
+                </button>
               </div>
             </div>
 
