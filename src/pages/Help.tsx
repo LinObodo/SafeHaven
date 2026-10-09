@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { Shield, CheckCircle, AlertTriangle, FileText, Users, Phone, Heart, Download, MessageCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Shield, CheckCircle, AlertTriangle, FileText, Users, Phone, Heart, Download, MessageCircle, Save, Trash2 } from 'lucide-react';
 import QuickExitButton from '../components/Common/QuickExitButton';
+import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
+import LoadingSpinner from '../components/Common/LoadingSpinner';
 
 type SafetyPlan = {
   emergencyContacts: { name: string; phone: string; relationship: string }[];
@@ -12,6 +15,7 @@ type SafetyPlan = {
 };
 
 const Help: React.FC = () => {
+  const { user, isAuthenticated } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [safetyPlan, setSafetyPlan] = useState<SafetyPlan>({
     emergencyContacts: [{ name: '', phone: '', relationship: '' }],
@@ -21,6 +25,122 @@ const Help: React.FC = () => {
     warningSignals: [''],
     personalItems: [''],
   });
+
+  // Persistence state
+  const [planLoading, setPlanLoading] = useState(true);
+  const [planSaving, setPlanSaving] = useState(false);
+  const [hasSavedPlan, setHasSavedPlan] = useState(false);
+  const [planStatus, setPlanStatus] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Load the user's saved plan (if any) on mount
+  useEffect(() => {
+    const loadPlan = async () => {
+      if (!isAuthenticated || !user) {
+        setPlanLoading(false);
+        return;
+      }
+
+      setPlanLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('safety_plans')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          setSafetyPlan({
+            emergencyContacts: data.emergency_contacts?.length
+              ? data.emergency_contacts
+              : [{ name: '', phone: '', relationship: '' }],
+            safeLocations: data.safe_locations?.length ? data.safe_locations : [''],
+            importantDocuments: data.important_documents ?? [],
+            escapeRoutes: data.escape_routes?.length ? data.escape_routes : [''],
+            warningSignals: data.warning_signals?.length ? data.warning_signals : [''],
+            personalItems: data.personal_items?.length ? data.personal_items : [''],
+          });
+          setHasSavedPlan(true);
+        }
+      } catch (err) {
+        console.error('Error loading safety plan:', err);
+        setPlanStatus({ type: 'error', text: 'Could not load your saved plan. You can still create one below.' });
+      } finally {
+        setPlanLoading(false);
+      }
+    };
+
+    loadPlan();
+  }, [isAuthenticated, user]);
+
+  const savePlan = async () => {
+    if (!user) {
+      setPlanStatus({ type: 'error', text: 'Please sign in to save your plan.' });
+      return;
+    }
+
+    setPlanSaving(true);
+    setPlanStatus(null);
+    try {
+      const { error } = await supabase
+        .from('safety_plans')
+        .upsert(
+          {
+            user_id: user.id,
+            emergency_contacts: safetyPlan.emergencyContacts,
+            safe_locations: safetyPlan.safeLocations,
+            important_documents: safetyPlan.importantDocuments,
+            escape_routes: safetyPlan.escapeRoutes,
+            warning_signals: safetyPlan.warningSignals,
+            personal_items: safetyPlan.personalItems,
+          },
+          { onConflict: 'user_id' }
+        );
+
+      if (error) throw error;
+
+      setHasSavedPlan(true);
+      setPlanStatus({ type: 'success', text: 'Your safety plan has been saved securely.' });
+    } catch (err) {
+      console.error('Error saving safety plan:', err);
+      setPlanStatus({ type: 'error', text: 'Could not save your plan. Please try again.' });
+    } finally {
+      setPlanSaving(false);
+    }
+  };
+
+  const deletePlan = async () => {
+    if (!user) return;
+
+    setPlanSaving(true);
+    setPlanStatus(null);
+    try {
+      const { error } = await supabase
+        .from('safety_plans')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setSafetyPlan({
+        emergencyContacts: [{ name: '', phone: '', relationship: '' }],
+        safeLocations: [''],
+        importantDocuments: [],
+        escapeRoutes: [''],
+        warningSignals: [''],
+        personalItems: [''],
+      });
+      setHasSavedPlan(false);
+      setCurrentStep(0);
+      setPlanStatus({ type: 'success', text: 'Your saved safety plan has been deleted.' });
+    } catch (err) {
+      console.error('Error deleting safety plan:', err);
+      setPlanStatus({ type: 'error', text: 'Could not delete your plan. Please try again.' });
+    } finally {
+      setPlanSaving(false);
+    }
+  };
 
 
   const safetySteps = [
@@ -308,13 +428,56 @@ REMEMBER:
                 You've created a comprehensive safety plan. Remember to review and update it regularly
                 as your situation changes.
               </p>
-              <button
-                onClick={downloadPlan}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-              >
-                <Download className="h-4 w-4" />
-                <span>Download Your Plan</span>
-              </button>
+
+              {planStatus && (
+                <div
+                  className={`mb-4 text-sm font-medium ${
+                    planStatus.type === 'success'
+                      ? 'text-green-700 dark:text-green-300'
+                      : 'text-red-700 dark:text-red-300'
+                  }`}
+                >
+                  {planStatus.text}
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                {isAuthenticated && (
+                  <button
+                    onClick={savePlan}
+                    disabled={planSaving}
+                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>{hasSavedPlan ? 'Update Saved Plan' : 'Save Plan'}</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={downloadPlan}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Download Your Plan</span>
+                </button>
+
+                {isAuthenticated && hasSavedPlan && (
+                  <button
+                    onClick={deletePlan}
+                    disabled={planSaving}
+                    className="bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg border-2 border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span>Delete Saved Plan</span>
+                  </button>
+                )}
+              </div>
+
+              {!isAuthenticated && (
+                <p className="text-sm text-green-700 dark:text-green-300 mt-3">
+                  Sign in to save your plan securely and access it later.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -368,6 +531,17 @@ REMEMBER:
 
   // Get the current step's icon component
   const CurrentStepIcon = safetySteps[currentStep].icon;
+
+  if (planLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading your safety plan...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

@@ -97,6 +97,44 @@ export interface Database {
           created_at?: string;
         };
       };
+      safety_plans: {
+        Row: {
+          id: string;
+          user_id: string;
+          emergency_contacts: { name: string; phone: string; relationship: string }[];
+          safe_locations: string[];
+          important_documents: string[];
+          escape_routes: string[];
+          warning_signals: string[];
+          personal_items: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          emergency_contacts?: { name: string; phone: string; relationship: string }[];
+          safe_locations?: string[];
+          important_documents?: string[];
+          escape_routes?: string[];
+          warning_signals?: string[];
+          personal_items?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          emergency_contacts?: { name: string; phone: string; relationship: string }[];
+          safe_locations?: string[];
+          important_documents?: string[];
+          escape_routes?: string[];
+          warning_signals?: string[];
+          personal_items?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
   };
 }

@@ -15,6 +15,7 @@ export interface SafetyPlan {
   importantDocuments: string[];
   escapeRoutes: string[];
   warningSignals: string[];
+  personalItems: string[];
   createdAt: Date;
   updatedAt: Date;
 }
